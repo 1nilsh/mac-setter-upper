@@ -3,8 +3,6 @@
 # List of software to check and install via Homebrew
 software_list=(
     "argon2"
-    "biber"
-    "brotli"
     "exiftool"
     "ffmpeg"
     "gnupg"
@@ -18,9 +16,6 @@ software_list=(
     "python@3"
     "r"
     "sqlite"
-    "telnet"
-    "tesseract"
-    "wget"
     "yt-dlp"
 
     # Casks
@@ -33,6 +28,7 @@ software_list=(
     "nextcloud"
     "obsidian"
     "rectangle"
+    "rstudio"
     "spotify"
     "visual-studio-code"
     "whatsapp"
@@ -84,9 +80,9 @@ perform_install() {
     echo "🔄 Installing $software..."
 
     if brew info --cask "$software" >/dev/null 2>&1; then
-        echo "nstall --cask $software"
+        brew install --cask "$software"
     else
-        echo "nstall $software"
+        brew install "$software"
     fi
 }
 
