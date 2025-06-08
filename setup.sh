@@ -52,13 +52,11 @@ fonts_list=(
 )
 
 # Function to check if a package is installed via Homebrew
-brew_installed() {
+is_package_installed() {
     if command -v "$1" >/dev/null 2>&1; then
         return 0  # Command exists, preinstalled through other ways
-    elif brew list --versions --cask "$1" >/dev/null 2>&1; then
-        return 0  # Cask is installed
-    elif brew list --versions "$1" >/dev/null 2>&1; then
-        return 0  # Formula is installed
+    elif brew list "$1" >/dev/null 2>&1; then
+        return 0  # Is installed through homebrew
     else
         return 1  # Not installed
     fi
@@ -75,14 +73,14 @@ is_font_installed() {
 }
 
 perform_install() {
-    local software="$1"
+    local package_name="$1"
     
-    echo "🔄 Installing $software..."
+    echo "🔄 Installing $package_name..."
 
-    if brew info --cask "$software" >/dev/null 2>&1; then
-        brew install --cask "$software"
+    if brew info --cask "$package_name" >/dev/null 2>&1; then
+        brew install --cask "$package_name"
     else
-        brew install "$software"
+        brew install "$package_name"
     fi
 }
 
@@ -123,7 +121,7 @@ missing_software=()
 
 for entry in "${software_list[@]}"; do
     IFS=":" read -r package <<< "$entry"
-    if brew_installed "$package"; then
+    if is_package_installed "$package"; then
         printf "%-30s %-10s\n" "$package" "✅ Installed"
     else
         printf "%-30s %-10s\n" "$package" "❌ Missing"
