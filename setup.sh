@@ -45,12 +45,17 @@ fonts_list=(
     "Lexend Deca"
     "Merriweather"
     "New Computer Modern"
-    "Noto Serif"
     "Noto Sans"
     "Noto Sans Mono"
     "Open Sans"
+    "Noto Serif"
+    "Roboto"
+    "Roboto Mono"
+    "Roboto Slab"
     "SF Pro"
     "SF Mono"
+    "Source Code Pro"
+    "Source Sans"
 )
 
 # Function to check if a package is installed via Homebrew
