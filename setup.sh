@@ -19,6 +19,7 @@ software_list=(
     "yt-dlp"
 
     # Casks
+    "1password"
     "basictex"
     "brave-browser"
     "coteditor"
@@ -30,6 +31,7 @@ software_list=(
     "rectangle"
     "rstudio"
     "spotify"
+    "telegram"
     "visual-studio-code"
     "whatsapp"
 
@@ -153,10 +155,10 @@ else
     echo "🎉 All software is already installed!"
 fi
 
-# Check for software and display status
+# Check for fonts and display status
 echo "\nChecking for font installations..."
 printf "%-30s %-10s\n" "Font Name" "Status"
-printf "%-30s %-10s\n" "--------" "------"
+printf "%-30s %-10s\n" "---------" "------"
 
 missing_fonts=()
 
@@ -169,6 +171,7 @@ for font in "${fonts_list[@]}"; do
     fi
 done
 
+# Prompt to install missing fonts all at once
 if [ ${#missing_fonts[@]} -gt 0 ]; then
     echo "\n💡 The following fonts are missing:"
     for font in "${missing_fonts[@]}"; do
