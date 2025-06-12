@@ -58,6 +58,28 @@ desired_fonts=(
     "Source Sans"
 )
 
+# Install Oh My Zsh if not installed
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "🔄 Oh My Zsh is not installed. Installing Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+    echo "Restart your terminal and re-run this script for changes to take effect."
+    exit 0
+else
+    echo "✅ Oh My Zsh is already installed."
+fi
+
+# Install Homebrew if not installed
+if ! command -v brew >/dev/null 2>&1; then
+    echo "🔄 Homebrew is not installed. Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    echo "Restart your terminal and re-run this script for changes to take effect."
+    exit 0
+else
+    echo "✅ Homebrew is already installed."
+fi
+
 is_package_installed() {
     local type="$1"
     local package_name="$2"
@@ -104,28 +126,6 @@ perform_install() {
         return 1
     fi
 }
-
-# Install Oh My Zsh if not installed
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    echo "🔄 Oh My Zsh is not installed. Installing Oh My Zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-    echo "Restart your terminal and re-run this script for changes to take effect."
-    exit 0
-else
-    echo "✅ Oh My Zsh is already installed."
-fi
-
-# Install Homebrew if not installed
-if ! command -v brew >/dev/null 2>&1; then
-    echo "🔄 Homebrew is not installed. Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-    echo "Restart your terminal and re-run this script for changes to take effect."
-    exit 0
-else
-    echo "✅ Homebrew is already installed."
-fi
 
 echo "\nChecking for software installations..."
 printf "%-30s %-10s\n" "Software" "Status"
