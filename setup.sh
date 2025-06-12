@@ -1,8 +1,8 @@
 #!/bin/zsh
 
-# List of software to check and install via Homebrew
-software_list=(
+desired_formulae=(
     "argon2"
+    "cmake"
     "exiftool"
     "ffmpeg"
     "gnupg"
@@ -14,11 +14,12 @@ software_list=(
     "podman"
     "podman-compose"
     "python@3"
-    "r"
+    #"r"
     "sqlite"
     "yt-dlp"
+)
 
-    # Casks
+desired_casks=(
     "1password"
     "basictex"
     "brave-browser"
@@ -29,17 +30,16 @@ software_list=(
     "nextcloud"
     "obsidian"
     "rectangle"
+    "r"
     "rstudio"
     "spotify"
     "telegram"
     "visual-studio-code"
     "whatsapp"
-
     #"microsoft-office"
 )
 
-# List of fonts to install
-fonts_list=(
+desired_fonts=(
     "Atkinson Hyperlegible Next"
     "JetBrains Mono"
     "Lexend Deca"
@@ -58,18 +58,28 @@ fonts_list=(
     "Source Sans"
 )
 
-# Function to check if a package is installed via Homebrew
 is_package_installed() {
-    if command -v "$1" >/dev/null 2>&1; then
-        return 0  # Command exists, preinstalled through other ways
-    elif brew list "$1" >/dev/null 2>&1; then
-        return 0  # Is installed through homebrew
+    local type="$1"
+    local package_name="$2"
+
+    if [[ "$type" == "formula" ]]; then
+        if brew list --version --formula "$package_name" >/dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
+    elif [[ "$type" == "cask" ]]; then
+        if brew list --version --cask "$package_name" >/dev/null 2>&1; then
+            return 0
+        else
+            return 1
+        fi
     else
-        return 1  # Not installed
+        echo "Invalid type: $type. Use 'formula' or 'cask'."
+        return 1
     fi
 }
 
-# Function to check if a font is installed
 is_font_installed() {
     local font_name="$1"
     if fc-list | grep -i "$font_name" > /dev/null; then
@@ -80,26 +90,18 @@ is_font_installed() {
 }
 
 perform_install() {
-    local package_name="$1"
+    local type="$1"
+    local package_name="$2"
     
-    echo "🔄 Installing $package_name..."
+    echo "🔄 Installing $type $package_name..."
 
-    if brew info --cask "$package_name" >/dev/null 2>&1; then
+    if [[ "$type" == "formula" ]]; then
+        brew install --formula "$package_name"
+    elif [[ "$type" == "cask" ]]; then
         brew install --cask "$package_name"
     else
-        brew install "$package_name"
-    fi
-}
-
-# Function to prompt for installation
-prompt_install() {
-    local software="$1"
-    read -q "response?Do you want to install $software? (y/N) "
-    echo
-    if [[ "$response" =~ ^[Yy]$ ]]; then
-        perform_install "$software"
-    else
-        echo "❌ $software will not be installed."
+        echo "Invalid type: $type. Use 'formula' or 'cask'."
+        return 1
     fi
 }
 
@@ -119,55 +121,65 @@ else
     echo "✅ Homebrew is already installed."
 fi
 
-# Check for software and display status
 echo "\nChecking for software installations..."
 printf "%-30s %-10s\n" "Software" "Status"
 printf "%-30s %-10s\n" "--------" "------"
 
-missing_software=()
+missing_formulae=()
+missing_casks=()
 
-for entry in "${software_list[@]}"; do
-    IFS=":" read -r package <<< "$entry"
-    if is_package_installed "$package"; then
+for package in "${desired_formulae[@]}"; do
+    if is_package_installed formula "$package"; then
         printf "%-30s %-10s\n" "$package" "✅ Installed"
     else
         printf "%-30s %-10s\n" "$package" "❌ Missing"
-        missing_software+=("$package")
+        missing_formulae+=("$package")
     fi
 done
 
-# Prompt to install missing software
-if [ ${#missing_software[@]} -gt 0 ]; then
+for package in "${desired_casks[@]}"; do
+    if is_package_installed cask "$package"; then
+        printf "%-30s %-10s\n" "$package" "✅ Installed"
+    else
+        printf "%-30s %-10s\n" "$package" "❌ Missing"
+        missing_casks+=("$package")
+    fi
+done
+
+if [ ${#missing_formulae[@]} -gt 0 ] || [ ${#missing_casks[@]} -gt 0 ]; then
     echo "\n💡 The following software is missing:"
-    for software in "${missing_software[@]}"; do
-        echo " - $software"
+    for package in "${missing_formulae[@]}"; do
+        echo " - $package"
     done
 
-    echo "\n💿 Would you like to install all the missing software at once? (y/N)"
+    for package in "${missing_casks[@]}"; do
+        echo " - $package"
+    done
+
+    echo "\n💿 Would you like to install all the missing packages at once? (y/N)"
     read -q "install_all_response?"
     echo
 
     if [[ "$install_all_response" =~ ^[Yy]$ ]]; then
-        for software in "${missing_software[@]}"; do
-            perform_install "$software"
+        for package in "${missing_formulae[@]}"; do
+            perform_install formula "$package"
         done
-    else
-        for software in "${missing_software[@]}"; do
-            prompt_install "$software"
+
+        for package in "${missing_casks[@]}"; do
+            perform_install cask "$package"
         done
     fi
 else
     echo "🎉 All software is already installed!"
 fi
 
-# Check for fonts and display status
 echo "\nChecking for font installations..."
 printf "%-30s %-10s\n" "Font Name" "Status"
 printf "%-30s %-10s\n" "---------" "------"
 
 missing_fonts=()
 
-for font in "${fonts_list[@]}"; do
+for font in "${desired_fonts[@]}"; do
     if is_font_installed "$font"; then
         printf "%-30s %-10s\n" "$font" "✅ Installed"
     else
@@ -176,7 +188,6 @@ for font in "${fonts_list[@]}"; do
     fi
 done
 
-# Prompt to install missing fonts all at once
 if [ ${#missing_fonts[@]} -gt 0 ]; then
     echo "\n💡 The following fonts are missing:"
     for font in "${missing_fonts[@]}"; do
@@ -189,7 +200,7 @@ if [ ${#missing_fonts[@]} -gt 0 ]; then
 
     if [[ "$install_all_response" =~ ^[Yy]$ ]]; then
         for font in "${missing_fonts[@]}"; do
-            perform_install font-"$(echo "$font" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')"
+            perform_install cask font-"$(echo "$font" | tr ' ' '-' | tr '[:upper:]' '[:lower:]')"
         done
     fi
 else
