@@ -109,6 +109,9 @@ perform_install() {
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "🔄 Oh My Zsh is not installed. Installing Oh My Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+    echo "Restart your terminal and re-run this script for changes to take effect."
+    exit 0
 else
     echo "✅ Oh My Zsh is already installed."
 fi
@@ -117,6 +120,9 @@ fi
 if ! command -v brew >/dev/null 2>&1; then
     echo "🔄 Homebrew is not installed. Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    echo "Restart your terminal and re-run this script for changes to take effect."
+    exit 0
 else
     echo "✅ Homebrew is already installed."
 fi
